@@ -176,19 +176,22 @@ class SimVoja2RF(Operator):
         
         def step_simvoja2RF():
         
-            #shifted_post = post_filtered/(post_filtered-threshold)
-            #shifted_post = 1/(post_filtered-threshold)
-            shifted_post = post_filtered
-            pre_delta = -1.0 * alpha * learning_signal * (scale * np.outer(shifted_post, pre_decoded) - shifted_post[:, np.newaxis] * scaled_encoders)
+            if post_filtered > 0:
+                #shifted_post = post_filtered/(post_filtered-threshold)
+                shifted_post = 1/(post_filtered-threshold)
+                #shifted_post = post_filtered
+                pre_delta = -1.0 * alpha * learning_signal * (scale * np.outer(shifted_post, pre_decoded) - shifted_post[:, np.newaxis] * scaled_encoders)
             
-            mod_enc = pre_delta + scaled_encoders
+                mod_enc = pre_delta + scaled_encoders
             
-            #normalising factor keeping encoders inside the radius of the ensemble
-            mag = np.linalg.norm(mod_enc, axis=1)          
-            mod_enc = scale / mag[:, None] * mod_enc #assumes radius is 1
+                #normalising factor keeping encoders inside the radius of the ensemble
+                mag = np.linalg.norm(mod_enc, axis=1)          
+                mod_enc = scale / mag[:, None] * mod_enc #assumes radius is 1
 
-            #final delta
-            delta[...] = mod_enc - scaled_encoders
+                #final delta
+                delta[...] = mod_enc - scaled_encoders
+            else:
+                delta[...] = 0
            
         return step_simvoja2RF
 
